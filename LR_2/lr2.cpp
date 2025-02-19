@@ -8,9 +8,6 @@
 
 using namespace std;
 
-// Размер буфера для копирования файлов
-const int BUFFER_SIZE = 4096;
-
 void printHelp() {
     cout << "File Operations Program\n\n"
          << "Usage from command line:\n"
@@ -23,14 +20,19 @@ void printHelp() {
          << "  Run program without arguments and follow prompts\n";
 }
 
+// Размер буфера для блочного копирования файлов - 4KB
+const int BUFFER_SIZE = 4096;
+
 // Копирование файла с использованием блочного чтения/записи
 bool copyFile(const char* source, const char* dest) {
+    // Открываем исходный файл только для чтения
     int fd_source = open(source, O_RDONLY);
     if (fd_source == -1) {
         cout << "Error opening source file\n";
         return false;
     }
 
+    // Создаем/перезаписываем целевой файл с правами 644 (rw-r--r--)
     int fd_dest = open(dest, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (fd_dest == -1) {
         close(fd_source);
@@ -41,7 +43,9 @@ bool copyFile(const char* source, const char* dest) {
     char buffer[BUFFER_SIZE];
     ssize_t bytes_read;
 
+    // Читаем блоками по BUFFER_SIZE байт, пока не достигнем конца файла
     while ((bytes_read = read(fd_source, buffer, BUFFER_SIZE)) > 0) {
+        // Проверяем что записали столько же байт, сколько прочитали
         if (write(fd_dest, buffer, bytes_read) != bytes_read) {
             close(fd_source);
             close(fd_dest);
@@ -55,7 +59,7 @@ bool copyFile(const char* source, const char* dest) {
     return bytes_read != -1;
 }
 
-// Получение информации о файле
+// Получение информации о файле через системный вызов stat()
 void getFileInfo(const char* filename) {
     struct stat file_stat;
 
@@ -64,27 +68,27 @@ void getFileInfo(const char* filename) {
         return;
     }
 
+    // Выводим основные атрибуты файла
     cout << "File: " << filename << "\n"
          << "Size: " << file_stat.st_size << " bytes\n"
          << "Permissions: " << (file_stat.st_mode & 0777) << "\n"
          << "Last modified: " << ctime(&file_stat.st_mtime);
 }
 
-// Изменение прав доступа к файлу
-bool changePermissions(const char* filename, mode_t mode) {
-    return chmod(filename, mode) != -1;
-}
-
 // Перемещение файла
 bool moveFile(const char* source, const char* dest) {
     if (rename(source, dest) == -1) {
-        // Если перемещение не удалось, пробуем копировать и удалить
         if (copyFile(source, dest)) {
             return unlink(source) != -1;
         }
         return false;
     }
     return true;
+}
+
+// Изменение прав доступа к файлу
+bool changePermissions(const char* filename, mode_t mode) {
+    return chmod(filename, mode) != -1;
 }
 
 // Консольный интерфейс
