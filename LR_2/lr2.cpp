@@ -89,7 +89,7 @@ void getFileInfo(const char* filename) {
 
     cout << "File: " << filename << "\n"
          << "Size: " << file_stat.st_size << " bytes\n"
-         << "Permissions: " << perm << " (" << (file_stat.st_mode & 0777) << ")\n"
+         << "Permissions: " << perm << "\n"
          << "Last modified: " << ctime(&file_stat.st_mtime);
 }
 
