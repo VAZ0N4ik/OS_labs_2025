@@ -59,7 +59,7 @@ bool copyFile(const char* source, const char* dest) {
     return bytes_read != -1;
 }
 
-// Получение информации о файле через системный вызов stat()
+// Получение информации о файле
 void getFileInfo(const char* filename) {
     struct stat file_stat;
 
@@ -68,10 +68,28 @@ void getFileInfo(const char* filename) {
         return;
     }
 
-    // Выводим основные атрибуты файла
+    // Преобразование прав доступа в символьный вид
+    mode_t mode = file_stat.st_mode;
+    string perm;
+
+    // Права для владельца
+    perm += (mode & S_IRUSR) ? "r" : "-";
+    perm += (mode & S_IWUSR) ? "w" : "-";
+    perm += (mode & S_IXUSR) ? "x" : "-";
+
+    // Права для группы
+    perm += (mode & S_IRGRP) ? "r" : "-";
+    perm += (mode & S_IWGRP) ? "w" : "-";
+    perm += (mode & S_IXGRP) ? "x" : "-";
+
+    // Права для остальных
+    perm += (mode & S_IROTH) ? "r" : "-";
+    perm += (mode & S_IWOTH) ? "w" : "-";
+    perm += (mode & S_IXOTH) ? "x" : "-";
+
     cout << "File: " << filename << "\n"
          << "Size: " << file_stat.st_size << " bytes\n"
-         << "Permissions: " << (file_stat.st_mode & 0777) << "\n"
+         << "Permissions: " << perm << " (" << (file_stat.st_mode & 0777) << ")\n"
          << "Last modified: " << ctime(&file_stat.st_mtime);
 }
 
