@@ -190,7 +190,7 @@ bool load_matrix_from_file(const string& filename, vector<vector<double>>& matri
     }
 
     file >> rows >> cols;
-    if (cin.fail()) {
+    if (file.fail()) {
       return false;
     }
     if (rows <= 0 || cols <= 0) {
