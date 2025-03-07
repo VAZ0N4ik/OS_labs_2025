@@ -188,8 +188,11 @@ bool load_matrix_from_file(const string& filename, vector<vector<double>>& matri
         cout << "Ошибка: не удалось открыть файл " << filename << endl;
         return false;
     }
-    
+
     file >> rows >> cols;
+    if (cin.fail()) {
+      return false;
+    }
     if (rows <= 0 || cols <= 0) {
         cout << "Ошибка: некорректные размеры матрицы в файле" << endl;
         file.close();
